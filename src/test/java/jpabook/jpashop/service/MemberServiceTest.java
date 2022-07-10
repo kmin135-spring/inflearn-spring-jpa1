@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 // 통합테스트
 @SpringBootTest
-// 테스트에 @Transactional을 걸어두면 기본적으로 각 테스트 종료시점에 롤백한다.
+// 테스트에 @Transactional을 걸1어두면 기본적으로 각 테스트 종료시점에 롤백한다.
 @Transactional
 class MemberServiceTest {
     @Autowired MemberService mSvc;
