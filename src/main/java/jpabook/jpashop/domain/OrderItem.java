@@ -1,13 +1,17 @@
 package jpabook.jpashop.domain;
 
 import jpabook.jpashop.domain.item.Item;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
 
 @Entity
 @Getter @Setter
+// 정적 팩토리 메서드로만 생성할 수 있게하기 위해 PROTECT 로 세팅
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class OrderItem {
     @Id @GeneratedValue
     @Column(name = "order_item_id")
@@ -23,4 +27,26 @@ public class OrderItem {
 
     private int orderPrice; // 주문 당시의 가격
     private int count; // 주문 당시의 수량
+
+    //==생성 메서드==/
+    public static OrderItem createOrderItem(Item item, int orderPrice, int count) {
+        OrderItem orderItem = new OrderItem();
+        orderItem.setItem(item);
+        orderItem.setOrderPrice(orderPrice);
+        orderItem.setCount(count);
+
+        item.removeStock(count);
+        return orderItem;
+    }
+
+    //==비즈니스 로직==/
+    public void cancel() {
+        // 재고 수량 원복
+        getItem().addStock(count);
+    }
+
+    //==조회 로직==//
+    public int getTotalPrice() {
+        return getOrderPrice() * getCount();
+    }
 }
