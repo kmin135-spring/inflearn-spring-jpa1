@@ -1,5 +1,6 @@
 plugins {
-    id 'org.springframework.boot' version '2.7.1'
+    // 2.7.x 에서 intellij의 thymeleaf 지원이 비정상 동작하여 2.6.8 사용
+    id 'org.springframework.boot' version '2.6.8'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     id 'java'
 }
@@ -22,6 +23,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
     implementation 'org.springframework.boot:spring-boot-devtools'
 
     // datasource를 wrapping 하여 실제 수행되는 쿼리 출력 등의 편의 기능을 제공
