@@ -1,6 +1,7 @@
 package jpabook.jpashop.domain.item;
 
 import jpabook.jpashop.controller.BookForm;
+import jpabook.jpashop.service.BookUpdateDto;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,5 +26,12 @@ public class Book extends Item {
         b.setAuthor(form.getAuthor());
         b.setIsbn(form.getIsbn());
         return b;
+    }
+
+    public void changeCommonValues(BookUpdateDto param) {
+        setPrice(param.getPrice());
+        setAuthor(param.getAuthor());
+        setName(param.getName());
+        setStockQuantity(param.getStockQuantity());
     }
 }

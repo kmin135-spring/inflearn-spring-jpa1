@@ -2,6 +2,7 @@ package jpabook.jpashop.controller;
 
 import jpabook.jpashop.domain.item.Book;
 import jpabook.jpashop.domain.item.Item;
+import jpabook.jpashop.service.BookUpdateDto;
 import jpabook.jpashop.service.ItemService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -46,6 +47,7 @@ public class ItemController {
     public String updateItemForm(@PathVariable("id") Long id, Model model) {
         Book item = (Book) iSvc.findOne(id);
 
+        // 준영속 엔티티
         BookForm form = new BookForm();
         form.setId(item.getId());
         form.setName(item.getName());
@@ -67,9 +69,14 @@ public class ItemController {
     */
     @PostMapping("/items/{id}/edit")
     public String updateItem(BookForm form) {
-        Book book = Book.createBookFrom(form);
+        BookUpdateDto bookUpdateDto = BookUpdateDto.createBookUpdateDto(form);
 
-        iSvc.saveItem(book);
+//        iSvc.saveItem(book);
+
+        // form을 그대로 전달하기 보다는 업데이트가 가능할 값만 서비스계층으로 전달
+        // 파라미터가 많다면 서비스계층용 dto를 정의하여 넘기는 것도 고려
+        // 중요한 것은 실제로 업데이트할 값만 담아서 전달하는 것
+        iSvc.updateBook(bookUpdateDto.getId(), bookUpdateDto);
         return "redirect:/items";
     }
 }
