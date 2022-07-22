@@ -1,0 +1,15 @@
+### create member - v1
+POST http://localhost:8080/api/v1/members
+Content-Type: application/json
+
+{
+  "name": "kwon"
+}
+
+### create member - v2
+POST http://localhost:8080/api/v2/members
+Content-Type: application/json
+
+{
+  "name": "kwon"
+}
