@@ -37,6 +37,7 @@ public class ItemService {
 //        findBook.setStockQuantity(param.getStockQuantity());
 
         // 아래 처럼 명확하게 엔티티의 상태를 변경하는 메서드로 정의하는게 좋다.
+        // entity의 setter 는 private으로 두고 이런 의도가 내포된 비즈니스 메서드로만 상태를 변경해주는 것도 방법
         findBook.changeCommonValues(param);
     }
 

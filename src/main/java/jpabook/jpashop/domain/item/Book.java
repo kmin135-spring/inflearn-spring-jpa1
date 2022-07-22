@@ -17,6 +17,11 @@ public class Book extends Item {
     private String author;
     private String isbn;
 
+    /**
+     * 내생각) 샘플로 정적 팩토리 메서드를 엔티티에 만들어봤는데
+     * 엔티티가 웹계층 dto를 알 필요도 없고 코드가 지저분해지므로
+     * BookForm 쪽에 Book Entity 나 서비스 계층으로 넘길 dto를 생성하는 팩토리 메서드를 만드는게 좋을 것 같다.
+     */
     public static Book createBookFrom(BookForm form) {
         Book b = new Book();
         b.setId(form.getId());
