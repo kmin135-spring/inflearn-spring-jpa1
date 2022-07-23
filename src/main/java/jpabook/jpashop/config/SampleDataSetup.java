@@ -1,40 +1,80 @@
 package jpabook.jpashop.config;
 
-import jpabook.jpashop.domain.Address;
-import jpabook.jpashop.domain.Member;
+import jpabook.jpashop.domain.*;
 import jpabook.jpashop.domain.item.Book;
-import jpabook.jpashop.domain.item.Item;
-import jpabook.jpashop.service.ItemService;
-import jpabook.jpashop.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.persistence.EntityManager;
 
 @Component
 @RequiredArgsConstructor
 public class SampleDataSetup implements CommandLineRunner {
-    private final ItemService iSvc;
-    private final MemberService mSvc;
+    private final EntityManager em;
 
+    @Transactional
     @Override
     public void run(String... args) throws Exception {
-        Book sampleBook = new Book();
-        sampleBook.setStockQuantity(2);
-        sampleBook.setAuthor("a1");
-        sampleBook.setName("n1");
-        sampleBook.setIsbn("isbn1");
-        sampleBook.setPrice(1000);
-        iSvc.saveItem(sampleBook);
+        dbInit1();
+        dbInit2();
+    }
 
-        Member sampleMember = new Member();
-        sampleMember.setName("member1");
-        sampleMember.setAddress(new Address("서울", "test", "12345"));
-        mSvc.join(sampleMember);
+    private void dbInit1() {
+        Member member = createMember("userA", "서울", "1", "1111");
+        em.persist(member);
 
-        Member sampleMember2 = new Member();
-        sampleMember2.setName("member2");
-        sampleMember2.setAddress(new Address("부산", "도로도로", "9876"));
-        mSvc.join(sampleMember2);
+        Book book1 = createBook("JPA1 BOOK", 10000, 100);
+        em.persist(book1);
+
+        Book book2 = createBook("JPA2 BOOK", 20000, 100);
+        em.persist(book2);
+
+        OrderItem orderItem1 = OrderItem.createOrderItem(book1, 10000, 1);
+        OrderItem orderItem2 = OrderItem.createOrderItem(book2, 20000, 2);
+
+        Delivery delivery = createDelivery(member);
+        Order order = Order.createOrder(member, delivery, orderItem1, orderItem2);
+        em.persist(order);
+    }
+
+    private void dbInit2() {
+        Member member = createMember("userB", "진주", "2", "2222");
+        em.persist(member);
+
+        Book book1 = createBook("SRPING1 BOOK", 20000, 200);
+        em.persist(book1);
+
+        Book book2 = createBook("SPRING2 BOOK", 40000, 300);
+        em.persist(book2);
+
+        OrderItem orderItem1 = OrderItem.createOrderItem(book1, 20000, 3);
+        OrderItem orderItem2 = OrderItem.createOrderItem(book2, 40000, 4);
+
+        Delivery delivery = createDelivery(member);
+        Order order = Order.createOrder(member, delivery, orderItem1, orderItem2);
+        em.persist(order);
+    }
+
+    private Delivery createDelivery(Member member) {
+        Delivery delivery = new Delivery();
+        delivery.setAddress(member.getAddress());
+        return delivery;
+    }
+
+    private Book createBook(String name, int price, int stockQuantity) {
+        Book book1 = new Book();
+        book1.setName(name);
+        book1.setPrice(price);
+        book1.setStockQuantity(stockQuantity);
+        return book1;
+    }
+
+    private Member createMember(String name, String city, String street, String zipcode) {
+        Member member = new Member();
+        member.setName(name);
+        member.setAddress(new Address(city, street, zipcode));
+        return member;
     }
 }
