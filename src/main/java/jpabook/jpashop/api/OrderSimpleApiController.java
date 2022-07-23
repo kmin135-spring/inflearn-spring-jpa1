@@ -76,6 +76,19 @@ public class OrderSimpleApiController {
     }
 
     /**
+     * fetch join 적용
+     */
+    @GetMapping("/api/v3/simple-orders")
+    public List<SimpleOrderDto> ordersV3() {
+        // 쿼리가 1번만 나감
+        List<Order> findOrders = orderRepo.findAllWithMemberDelivery();
+        List<SimpleOrderDto> collect = findOrders.stream()
+                .map(SimpleOrderDto::new)
+                .collect(Collectors.toList());
+        return collect;
+    }
+
+    /**
     * 이 dto 자체가 API 스펙이 된다.
      * 필요한 최소한의 필드만 가지도록한다.
      */

@@ -80,4 +80,37 @@ public class OrderRepository {
         TypedQuery<Order> query = em.createQuery(cq).setMaxResults(1000); //최대 1000건
         return query.getResultList();
     }
+
+    /** fetch join
+     *
+     * <pre>
+     * SELECT order0_.order_id       AS order_id1_6_0_,
+     *        member1_.member_id     AS member_i1_4_1_,
+     *        delivery2_.delivery_id AS delivery1_2_2_,
+     *        order0_.delivery_id    AS delivery4_6_0_,
+     *        order0_.member_id      AS member_i5_6_0_,
+     *        order0_.order_date     AS order_da2_6_0_,
+     *        order0_.status         AS status3_6_0_,
+     *        member1_.city          AS city2_4_1_,
+     *        member1_.street        AS street3_4_1_,
+     *        member1_.zipcode       AS zipcode4_4_1_,
+     *        member1_.name          AS name5_4_1_,
+     *        delivery2_.city        AS city2_2_2_,
+     *        delivery2_.street      AS street3_2_2_,
+     *        delivery2_.zipcode     AS zipcode4_2_2_,
+     *        delivery2_.status      AS status5_2_2_
+     * FROM   orders order0_
+     *        INNER JOIN member member1_
+     *                ON order0_.member_id = member1_.member_id
+     *        INNER JOIN delivery delivery2_
+     *                ON order0_.delivery_id = delivery2_.delivery_id;
+     * </pre>
+     * */
+    public List<Order> findAllWithMemberDelivery() {
+        return em.createQuery(
+                "select o from Order o " +
+                        " join fetch o.member m " +
+                        " join fetch o.delivery d ", Order.class
+        ).getResultList();
+    }
 }
