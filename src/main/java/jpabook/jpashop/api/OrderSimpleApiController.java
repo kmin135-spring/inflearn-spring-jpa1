@@ -1,14 +1,20 @@
 package jpabook.jpashop.api;
 
+import jpabook.jpashop.domain.Address;
 import jpabook.jpashop.domain.Order;
+import jpabook.jpashop.domain.OrderStatus;
 import jpabook.jpashop.repository.OrderRepository;
 import jpabook.jpashop.repository.OrderSearch;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.aspectj.weaver.ast.Or;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * xToOne 관계에 대한 api
@@ -52,5 +58,47 @@ public class OrderSimpleApiController {
     public List<Order> ordersV1() {
         List<Order> all = orderRepo.findAllByCriteria(new OrderSearch());
         return all;
+    }
+
+    @GetMapping("/api/v2/simple-orders")
+    public List<SimpleOrderDto> ordersV2() {
+        // ORDER 2개 -> N이 2
+        // N+1문제 -> order1번, 회원2번, 배송지2번 -> 5번
+        // order가 100개라면 -> order1번, 회원100번, 배송지100번 -> 201번
+        // 영속성 컨텍스트내에서 같은 회원이나 배송지가 조회되면 추가 쿼리가 나가진 않으므로 최악의 케이스이긴 한데 아무튼 느림
+        // EAGER로 바꿔도 해결 안 됨 -> fetch join 등으로 해결해야함
+        List<Order> findOrders = orderRepo.findAllByCriteria(new OrderSearch());
+        List<SimpleOrderDto> collect = findOrders.stream()
+                .map(SimpleOrderDto::new)
+                .collect(Collectors.toList());
+
+        return collect;
+    }
+
+    /**
+    * 이 dto 자체가 API 스펙이 된다.
+     * 필요한 최소한의 필드만 가지도록한다.
+     */
+    @Data
+    @AllArgsConstructor
+    static class SimpleOrderDto {
+        private Long orderId;
+        private String name;
+        private LocalDateTime orderDate;
+        private OrderStatus orderStatus;
+        private Address address;
+
+        /**
+         * 엔티티를 이용한 생성자
+         * 덜 중요한 DTO가 중요한 엔티티를 참조하는거라
+         * 이런 생성자는 OK
+         */
+        public SimpleOrderDto(Order o) {
+            orderId = o.getId();
+            name = o.getMember().getName(); // LAZY 초기화
+            orderDate = o.getOrderDate();
+            orderStatus = o.getStatus();
+            address = o.getDelivery().getAddress();; // LAZY 초기화
+        }
     }
 }
