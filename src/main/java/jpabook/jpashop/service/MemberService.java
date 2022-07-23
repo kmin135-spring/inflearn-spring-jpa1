@@ -58,4 +58,19 @@ public class MemberService {
     public Member findOne(Long memberId) {
         return mRepo.findOne(memberId);
     }
+
+    /**
+     * 변경한 Member를 반환하게 할 수도 있지만
+     * 그러면 커맨드성 메서드와 쿼리성 메서드가 혼합된 형태가 된다.
+     *
+     * 강사님은 커맨드성 메서드 (무언가 변경하는) 와 쿼리성 메서드를 가능하면 분리한다고 함
+     * 그래서 반환타입을 void로 하거나 필요하면 id 정도만 반환한다고 한다.
+     *
+     * CQRS 관점에서도 확장성면에서 유리한 방법이라고 생각됨
+     */
+    @Transactional
+    public void update(Long id, String name) {
+        Member member = mRepo.findOne(id);
+        member.setName(name);
+    }
 }
