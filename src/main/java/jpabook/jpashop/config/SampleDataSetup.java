@@ -28,8 +28,13 @@ public class SampleDataSetup implements CommandLineRunner {
         iSvc.saveItem(sampleBook);
 
         Member sampleMember = new Member();
-        sampleMember.setName("user1");
-        sampleMember.setAddress(new Address("c1", "s1", "z1"));
+        sampleMember.setName("member1");
+        sampleMember.setAddress(new Address("서울", "test", "12345"));
         mSvc.join(sampleMember);
+
+        Member sampleMember2 = new Member();
+        sampleMember2.setName("member2");
+        sampleMember2.setAddress(new Address("부산", "도로도로", "9876"));
+        mSvc.join(sampleMember2);
     }
 }

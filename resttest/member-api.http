@@ -21,3 +21,9 @@ Content-Type: application/json
 {
   "name": "kwon modify"
 }
+
+### query member - v1
+GET http://localhost:8080/api/v1/members/
+
+### query member - v2
+GET http://localhost:8080/api/v2/members/
