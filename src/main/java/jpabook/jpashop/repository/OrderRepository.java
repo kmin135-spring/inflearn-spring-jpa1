@@ -117,6 +117,16 @@ public class OrderRepository {
         ).getResultList();
     }
 
+    public List<Order> findAllWithMemberDelivery(int offset, int limit) {
+        return em.createQuery(
+                "select o from Order o " +
+                        " join fetch o.member m " +
+                        " join fetch o.delivery d ", Order.class)
+                .setFirstResult(offset)
+                .setMaxResults(limit)
+                .getResultList();
+    }
+
     /**
      * JPQL distinct의 기능
      * 1. sql에 distinct 를 날려줌

@@ -12,6 +12,9 @@ spring:
       hibernate:
 #        show_sql: true
         format_sql: true
+        # lazy 로딩을 100개만큼 in query 로 모아서 실행해줌
+        # 이건 글로벌 설정이고 @BatchSize로도 연관관계별로도 설정 가능
+        default_batch_fetch_size: 100
 
 #logging:
 #  level:
