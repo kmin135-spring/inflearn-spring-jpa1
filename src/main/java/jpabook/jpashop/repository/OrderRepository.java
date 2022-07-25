@@ -117,4 +117,26 @@ public class OrderRepository {
         ).getResultList();
     }
 
+    /**
+     * JPQL distinct의 기능
+     * 1. sql에 distinct 를 날려줌
+     * 2. 루트 엔티티가 중복인 경우 (여기서는 Order) JPA가 중복을 제거후 결과에 담아줌
+     *
+     * 단점: 1:N 을 fetch join하면 페이징 쿼리가 안 나간다.
+     * - limit 나 페이징 쿼리가 안 나가고 대신 JPA가 메모리에 모두 올린 뒤 페이징해줌
+     *
+     * 결론: 1:N fetch join을 사용할 경우 페이징 쿼리를 쓰지 마라
+     *
+     * + 컬렉션 fetch join은 1개만 사용할 수 있다.
+     * 컬렉션 둘 이상에 페치 조인을 사용하면 데이터가 부정합하게 조회될 수 있다. (책참조)
+     */
+    public List<Order> findAllWithIthem() {
+        return em.createQuery(
+                "select distinct o from Order o " +
+                        "join fetch o.member m " +
+                        "join fetch o.delivery d " +
+                        "join fetch o.orderItems oi " +
+                        "join fetch oi.item i", Order.class)
+                .getResultList();
+    }
 }
