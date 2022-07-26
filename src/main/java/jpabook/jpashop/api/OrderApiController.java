@@ -118,6 +118,17 @@ public class OrderApiController {
         return orderQueryRepo.findOrderQueryDtos();
     }
 
+    /**
+     * in절을 사용하여 v4의 N+1 문제 해결
+     *
+     * v3.1의 단순 fetch join 대비 DTO 로 바로 얻기 위한 코드량이 많아짐
+     * 대신 필요한 필드만 select하므로 트래픽이 줄어드는 효과가 있음 (트레이드 오프)
+     */
+    @GetMapping("/api/v5/orders")
+    public List<OrderQueryDto> ordersV5() {
+        return orderQueryRepo.findAllByDto_optimization();
+    }
+
     @Data
     static class OrderDto {
         private Long orderId;
