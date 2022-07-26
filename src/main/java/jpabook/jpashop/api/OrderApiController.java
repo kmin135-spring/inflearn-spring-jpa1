@@ -6,6 +6,8 @@ import jpabook.jpashop.domain.OrderItem;
 import jpabook.jpashop.domain.OrderStatus;
 import jpabook.jpashop.repository.OrderRepository;
 import jpabook.jpashop.repository.OrderSearch;
+import jpabook.jpashop.repository.order.query.OrderFlatDto;
+import jpabook.jpashop.repository.order.query.OrderItemQueryDto;
 import jpabook.jpashop.repository.order.query.OrderQueryDto;
 import jpabook.jpashop.repository.order.query.OrderQueryRepository;
 import lombok.Data;
@@ -17,6 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -53,7 +57,7 @@ public class OrderApiController {
         List<Order> orders = orderRepo.findAllByCriteria(new OrderSearch());
         List<OrderDto> collect = orders.stream()
                 .map(o -> new OrderDto(o))
-                .collect(Collectors.toList());
+                .collect(toList());
         return collect;
     }
 
@@ -67,7 +71,7 @@ public class OrderApiController {
         List<Order> orders = orderRepo.findAllWithIthem();
         List<OrderDto> collect = orders.stream()
                 .map(o -> new OrderDto(o))
-                .collect(Collectors.toList());
+                .collect(toList());
         return collect;
     }
 
@@ -104,7 +108,7 @@ public class OrderApiController {
         List<Order> orders = orderRepo.findAllWithMemberDelivery(offset, limit);
         List<OrderDto> collect = orders.stream()
                 .map(o -> new OrderDto(o))
-                .collect(Collectors.toList());
+                .collect(toList());
         return collect;
     }
 
@@ -129,6 +133,31 @@ public class OrderApiController {
         return orderQueryRepo.findAllByDto_optimization();
     }
 
+    /**
+     * 쿼리를 한 번만 날리는 방법
+     *
+     * 장점 :
+     * - 쿼리 한 번에 컬렉션을 포함한 데이터를 모두 얻을 수 있음
+     * - 조건에 따라 다르지만 보통은 가장 빠름
+     *
+     * 단점
+     * 1. 쿼리는 1번이지만 조인으로 인해 중복 데이터를 얻어오므로 조건에 따라 더 느릴 수 있음
+     * 2. 애플리케이션에서 중복을 제거하고 소팅하고 API 스펙에 맞춰 매핑하는등 추가작업이 많음
+     *   - 아래 예제에서도 OrderFlatDto -> OrderQueryDto 로 변환하기 위해 복잡한 변경작업이 필요함
+     * 3. 페이징이 불가능함 (1:N 조인하면서 데이터 양이 불어나니까)
+     */
+    @GetMapping("/api/v6/orders")
+    public List<OrderQueryDto> ordersV6() {
+        List<OrderFlatDto> flats = orderQueryRepo.findAllByDto_flat();
+
+        return flats.stream()
+                .collect(groupingBy(o -> new OrderQueryDto(o.getOrderId(), o.getName(), o.getOrderDate(), o.getOrderStatus(), o.getAddress()),
+                        mapping(o -> new OrderItemQueryDto(o.getOrderId(), o.getItemName(), o.getOrderPrice(), o.getCount()), toList())
+                )).entrySet().stream()
+                .map(e -> new OrderQueryDto(e.getKey().getOrderId(), e.getKey().getName(), e.getKey().getOrderDate(), e.getKey().getOrderStatus(), e.getKey().getAddress(), e.getValue()))
+                .collect(toList());
+    }
+
     @Data
     static class OrderDto {
         private Long orderId;
@@ -147,7 +176,7 @@ public class OrderApiController {
             address = order.getDelivery().getAddress();
             orderItems = order.getOrderItems().stream()
                     .map(io -> new OrderItemDto(io))
-                    .collect(Collectors.toList());
+                    .collect(toList());
         }
     }
 
